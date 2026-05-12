@@ -1,0 +1,95 @@
+services:
+  # ============================================================
+  # PostgreSQL Database
+  # In production, this is replaced by AWS RDS.
+  # ============================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: clouddeploy-postgres
+    environment:
+      POSTGRES_USER: clouddeploy
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: clouddeploy
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clouddeploy"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - clouddeploy-net
+
+  # ============================================================
+  # Flask Application
+  # ============================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clouddeploy-app
+    environment:
+      DB_USER: clouddeploy
+      DB_PASSWORD: devpassword
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: clouddeploy
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - clouddeploy-net
+    restart: unless-stopped
+
+  # ============================================================
+  # Prometheus - scrapes metrics from the app
+  # ============================================================
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: clouddeploy-prometheus
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - clouddeploy-net
+    restart: unless-stopped
+
+  # ============================================================
+  # Grafana - visualizes Prometheus metrics
+  # ============================================================
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: clouddeploy-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - clouddeploy-net
+    restart: unless-stopped
+
+networks:
+  clouddeploy-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
