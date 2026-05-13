@@ -1,3 +1,5 @@
+
+
 """
 CloudDeploy - Task Manager API
 A simple Flask REST API for managing tasks, instrumented for observability.
@@ -159,6 +161,16 @@ def delete_task(task_id):
 
     logger.info(f"Deleted task {task_id}")
     return "", 204
+
+import socket
+import os
+
+@app.route("/debug")
+def debug():
+    return {
+        "hostname": socket.gethostname(),
+        "pid": os.getpid()
+    }
 
 
 if __name__ == "__main__":
