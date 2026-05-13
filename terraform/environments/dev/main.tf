@@ -96,9 +96,9 @@ module "ecs" {
   task_execution_role_arn = module.iam.task_execution_role_arn
   task_role_arn           = module.iam.task_role_arn
   db_username             = "clouddeploy"
-  db_host                 = module.rds.db_host
-  db_port                 = module.rds.db_port
-  db_name                 = module.rds.db_name
+  db_host                 = "localhost"
+  db_port                 = 5432
+  db_name                 = "clouddeploy"
   db_password_secret_arn  = module.secrets.db_password_secret_arn
   desired_count           = 2
   tags                    = local.common_tags
@@ -107,14 +107,14 @@ module "ecs" {
 # ----------------------------------------------------------------
 # RDS
 # ----------------------------------------------------------------
-module "rds" {
-  source = "../../modules/rds"
+#module "rds" {
+ # source = "../../modules/rds"
 
-  project_name               = var.project_name
-  vpc_id                     = module.networking.vpc_id
-  private_subnet_ids         = module.networking.private_subnet_ids
-  ecs_task_security_group_id = module.ecs.ecs_task_security_group_id
-  db_password                = var.db_password
-  multi_az                   = false # Set true in prod
-  tags                       = local.common_tags
-}
+  #project_name               = var.project_name
+  #vpc_id                     = module.networking.vpc_id
+  #private_subnet_ids         = module.networking.private_subnet_ids
+  #ecs_task_security_group_id = module.ecs.ecs_task_security_group_id
+  #db_password                = var.db_password
+  #multi_az                   = false # Set true in prod
+  #tags                       = local.common_tags
+#}
