@@ -512,17 +512,47 @@ clouddeploy/
 
 ---
 
-# 📸 Recommended Screenshots
+# 📸 Screenshots
 
-Recommended screenshots for GitHub:
+# 📸 Screenshots
 
-- Terraform apply success
-- ECS running service
-- ECR repository
-- CloudWatch logs
-- ALB health response
-- CRUD API testing
-- Architecture diagram
+## Terraform Apply Success
+
+![Terraform Apply](docs/screenshots/terraform-apply-success.png)
+
+---
+
+## ECS Service Running
+
+![ECS Service](docs/screenshots/ecs-service-running.png)
+
+---
+
+## Health Check
+
+![Health Check](docs/screenshots/alb-health-check.png)
+
+---
+
+## CRUD API Testing
+
+### Create Task
+
+![Create Task](docs/screenshots/crud-create-task.png)
+
+### Update Task
+
+![Update Task](docs/screenshots/crud-update-task.png)
+
+### Delete Task
+
+![Delete Task](docs/screenshots/crud-delete-task.png)
+
+---
+
+## Architecture Diagram
+
+![Architecture Diagram](docs/architecture-diagram.png)
 
 ---
 
