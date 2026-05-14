@@ -1,218 +1,591 @@
-# CloudDeploy
+# 🚀 CloudDeploy
 
-A production-style containerized web application platform demonstrating cloud-native infrastructure, DevOps automation, and observability practices.
+> A cloud-native Flask REST API deployed on AWS using Docker, Terraform, Amazon ECS Fargate, Amazon ECR, and an Application Load Balancer.
 
-> **Status:** Phase 1 complete — fully working local environment. Phase 2 (AWS validation) is documented in [docs/PHASE2_AWS.md](docs/PHASE2_AWS.md).
-
----
-
-## What This Project Is
-
-CloudDeploy is a small Task Manager REST API used as a vehicle to demonstrate the engineering practices that matter for cloud and DevOps roles:
-
-- **Infrastructure as Code** — every AWS resource defined in modular Terraform.
-- **Containerization** — multi-stage Docker build, non-root user, healthchecks.
-- **CI/CD automation** — GitHub Actions runs lint, tests, security scans, and builds on every push.
-- **DevSecOps** — Trivy scans container images, tfsec scans Terraform.
-- **Observability** — Prometheus scrapes the app, Grafana visualizes metrics, alert rules defined.
-- **Secrets management** — database credentials injected from AWS Secrets Manager at runtime.
-- **Least-privilege IAM** — separate execution and task roles.
-- **High availability** — multi-AZ design across two availability zones.
-
-The application itself (a CRUD API for tasks) is intentionally simple. The interesting part is *how it is deployed and operated*.
+![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-orange?logo=amazonaws)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-623CE4?logo=terraform)
+![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker)
+![Python](https://img.shields.io/badge/Python-Flask-3776AB?logo=python)
+![Status](https://img.shields.io/badge/Status-Completed-success)
 
 ---
 
-## Architecture
+# 📌 Overview
 
-![Architecture diagram](docs/architecture.png)
+CloudDeploy is a cloud-native task management REST API project built to demonstrate practical cloud engineering, DevOps, Infrastructure as Code (IaC), containerization, AWS deployment workflows, and real-world troubleshooting.
 
-**Traffic flow (AWS deployment):**
+The project started as a locally developed Flask application and was gradually deployed into a production-like AWS environment using:
 
-1. User hits the Application Load Balancer in public subnets.
-2. ALB forwards traffic to Flask containers running on ECS Fargate in private subnets across two AZs.
-3. Containers read/write to RDS PostgreSQL (also in private subnets).
-4. Database credentials come from AWS Secrets Manager, injected at container start.
-5. Logs stream to CloudWatch. CloudWatch alarms watch CPU and target health.
-6. The app exposes `/metrics` for Prometheus (used in the local stack).
+- Docker
+- Terraform
+- Amazon ECS Fargate
+- Amazon ECR
+- Application Load Balancer (ALB)
+- CloudWatch Logs
 
-**Local development** uses Docker Compose to run the same Flask container alongside PostgreSQL, Prometheus, and Grafana.
+The primary goal of the project was not to build a complex business application, but to understand the complete lifecycle of deploying and operating a containerized application in the cloud.
 
----
+This project demonstrates:
 
-## Tech Stack
-
-| Layer            | Tool                                                            |
-| ---------------- | --------------------------------------------------------------- |
-| Application      | Python 3.12, Flask, Flask-SQLAlchemy, gunicorn                  |
-| Database         | PostgreSQL 16                                                   |
-| Container        | Docker (multi-stage build)                                      |
-| Local orchestration | Docker Compose                                               |
-| IaC              | Terraform (modular: networking, ecs, rds, iam, secrets)         |
-| Cloud (target)   | AWS — VPC, ECS Fargate, ALB, RDS, ECR, Secrets Manager, CloudWatch, IAM |
-| CI/CD            | GitHub Actions                                                  |
-| Security         | Trivy (image scanning), tfsec (IaC scanning)                    |
-| Monitoring       | Prometheus + Grafana with alert rules                           |
-| Testing          | pytest with SQLite in-memory                                    |
+- Containerization with Docker
+- Infrastructure provisioning with Terraform
+- AWS ECS Fargate deployment
+- Amazon ECR image workflows
+- Load balancing with ALB
+- CloudWatch debugging
+- REST API deployment
+- Distributed systems troubleshooting
+- Cost-conscious cloud architecture decisions
 
 ---
 
-## Quick Start (Local)
+# 🧱 Features
 
-**Requirements:** Docker Desktop, Git.
+- ✅ Flask REST API
+- ✅ CRUD task management endpoints
+- ✅ Health check endpoint
+- ✅ Readiness endpoint
+- ✅ Docker containerization
+- ✅ ECS Fargate deployment
+- ✅ Amazon ECR integration
+- ✅ Application Load Balancer routing
+- ✅ CloudWatch logging
+- ✅ Terraform-managed infrastructure
+- ✅ Prometheus metrics endpoint
+- ✅ Pytest test suite
+- ✅ SQLite fallback for low-cost demo deployment
+
+---
+
+# 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/health` | Liveness check |
+| GET | `/ready` | Readiness check |
+| GET | `/api/tasks` | List all tasks |
+| POST | `/api/tasks` | Create task |
+| GET | `/api/tasks/<id>` | Retrieve single task |
+| PUT | `/api/tasks/<id>` | Update task |
+| DELETE | `/api/tasks/<id>` | Delete task |
+| GET | `/metrics` | Prometheus metrics |
+
+---
+
+# 🏗️ Architecture
+
+## Final Working Demo Architecture
+
+```text
+User / Browser / curl
+        |
+        v
+Application Load Balancer
+        |
+        v
+ECS Fargate Service
+        |
+        v
+Docker Container running Flask + Gunicorn
+        |
+        v
+SQLite database file inside container (/tmp/clouddeploy.db)
+```
+
+---
+
+## AWS Components Used
+
+- Amazon ECS Fargate
+- Amazon ECR
+- Application Load Balancer (ALB)
+- CloudWatch Logs
+- IAM Roles
+- VPC Networking
+- Terraform
+- Docker
+
+---
+
+# ⚙️ Tech Stack
+
+## Backend
+- Python 3.12
+- Flask
+- SQLAlchemy
+- Gunicorn
+
+## Cloud & Infrastructure
+- AWS ECS Fargate
+- Amazon ECR
+- Application Load Balancer
+- CloudWatch Logs
+- IAM
+- VPC Networking
+- Terraform
+
+## DevOps & Containers
+- Docker
+- Docker Compose
+- Git
+- GitHub
+
+## Monitoring
+- Prometheus
+- Grafana
+
+## Testing
+- Pytest
+- curl
+
+---
+
+# 🐳 Local Development
+
+## Clone Repository
 
 ```bash
-# Clone and enter the repo
-git clone <your-fork-url>
+git clone https://github.com/<your-username>/clouddeploy.git
+
 cd clouddeploy
-
-# Start the full stack
-docker compose up --build
-
-# In another terminal, exercise the API
-curl http://localhost:5000/health
-curl -X POST http://localhost:5000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Learn Terraform","description":"Build CloudDeploy"}'
-curl http://localhost:5000/api/tasks
 ```
-
-**What's now running:**
-
-| Service     | URL                          | Credentials      |
-| ----------- | ---------------------------- | ---------------- |
-| Flask app   | http://localhost:5000        | —                |
-| Prometheus  | http://localhost:9090        | —                |
-| Grafana     | http://localhost:3000        | admin / admin    |
-| PostgreSQL  | localhost:5432               | clouddeploy / devpassword |
-
-Open Grafana → the **CloudDeploy Overview** dashboard auto-loads with request rate, latency percentiles, and error rate panels.
 
 ---
 
-## Running Tests
+## Create Python Virtual Environment
 
 ```bash
-# Install dev dependencies
-pip install -r app/requirements-dev.txt
+python3.12 -m venv venv
 
-# Run tests
-TESTING=true pytest tests/ -v
+source venv/bin/activate
 ```
 
-Tests use SQLite in-memory, so no database setup needed.
-
 ---
 
-## API Reference
+## Install Dependencies
 
-| Method | Endpoint              | Description           |
-| ------ | --------------------- | --------------------- |
-| GET    | `/health`             | Liveness probe        |
-| GET    | `/ready`              | Readiness probe (checks DB) |
-| GET    | `/metrics`            | Prometheus metrics    |
-| GET    | `/api/tasks`          | List all tasks        |
-| POST   | `/api/tasks`          | Create a task         |
-| GET    | `/api/tasks/<id>`     | Get one task          |
-| PUT    | `/api/tasks/<id>`     | Update a task         |
-| DELETE | `/api/tasks/<id>`     | Delete a task         |
-
----
-
-## Design Decisions
-
-This section captures the *why* behind the architecture. These are the questions an interviewer will ask.
-
-### Why ECS Fargate instead of EKS or EC2?
-
-Fargate is the right choice for a service of this size:
-
-- **No node management.** EC2 and EKS both require maintaining the underlying compute. Fargate is serverless — AWS handles the host OS.
-- **Cost at this scale.** For a small service with predictable load, Fargate is cheaper than running a dedicated EKS control plane (~$73/month before workloads).
-- **Operational simplicity.** EKS is the right answer at scale, with multiple teams, or when Kubernetes-specific features are needed. For a 2-task service with a single deployment pipeline, Fargate ships value faster.
-
-### Why private subnets for ECS tasks and RDS?
-
-Defense in depth. The application has no business being directly reachable from the internet — the ALB is the only public-facing component. Tasks reach the internet (for package downloads, AWS API calls) through a NAT Gateway. RDS is similarly isolated; only the ECS task security group can reach it on port 5432.
-
-### Why a single NAT Gateway in dev?
-
-A NAT Gateway costs roughly $32/month per AZ. Production deployments use one per AZ for HA, but in dev a single NAT in one AZ is acceptable and cuts cost in half. The trade-off is documented and reversible.
-
-### Why store the DB password in Secrets Manager, not as a plain env var?
-
-- **Audit trail.** Secrets Manager logs every access in CloudTrail.
-- **Rotation.** Secrets Manager can rotate the password automatically and update RDS in lockstep.
-- **No secrets in Terraform state or task definitions.** The task definition references the secret ARN; the value is fetched at container start.
-- **Cost-conscious alternative:** SSM Parameter Store (free for standard parameters) is a reasonable substitute when rotation isn't needed.
-
-### Why separate task execution role and task role?
-
-- The **task execution role** is used by ECS itself to pull images and write logs. The application code does not assume it.
-- The **task role** is assumed by the application code at runtime. Anything the app needs to do in AWS (e.g., publishing to SNS, reading from S3) goes here.
-
-This split means a compromised application container can only do what its task role allows, not what ECS itself can do.
-
-### Why Prometheus + Grafana instead of just CloudWatch?
-
-In the AWS-deployed version, CloudWatch is used for infrastructure metrics (CPU, target health, log aggregation). Prometheus + Grafana add application-level observability — request rates by endpoint, latency percentiles, and custom business metrics — using the same toolchain Platform Engineer and SRE teams use in production. Running them locally proves the integration without paying for managed Prometheus.
-
-### Why multi-stage Docker build?
-
-- The builder stage contains gcc, libpq-dev, and pip caches needed to compile psycopg2.
-- The runtime stage contains only the resulting venv and libpq5.
-- Result: smaller image (~150 MB vs ~400 MB), smaller attack surface, faster pulls.
-
-### Why a non-root user inside the container?
-
-If an attacker compromises the application and escapes to the container, running as a non-root user limits what they can do inside the container. It's a cheap, standard hardening practice that compliance frameworks like CIS expect.
-
-### Why pin all dependencies?
-
-Reproducible builds. An unpinned `Flask` could pull a new major version with breaking changes the next time the image is rebuilt. Pinning means today's build behaves the same as next month's build.
-
----
-
-## Repository Layout
-
+```bash
+pip install -r app/requirements.txt
 ```
+
+---
+
+## Run Flask Application
+
+```bash
+python app/main.py
+```
+
+Application runs on:
+
+```text
+http://localhost:5000
+```
+
+---
+
+## Run Tests
+
+```bash
+pytest tests/ -v
+```
+
+Expected result:
+
+```text
+9 passed
+```
+
+---
+
+# 🐳 Docker Workflow
+
+## Build Docker Image
+
+```bash
+docker build -t clouddeploy .
+```
+
+---
+
+## Run Container Locally
+
+```bash
+docker run -p 5000:5000 clouddeploy
+```
+
+---
+
+## Docker Compose
+
+```bash
+docker compose up --build
+```
+
+---
+
+# ☁️ AWS Deployment Workflow
+
+## 1️⃣ Initialize Terraform
+
+```bash
+cd terraform/environments/dev
+
+terraform init -backend=false
+```
+
+---
+
+## 2️⃣ Validate Terraform
+
+```bash
+terraform validate
+```
+
+Expected:
+
+```text
+Success! The configuration is valid.
+```
+
+---
+
+## 3️⃣ Apply Infrastructure
+
+```bash
+terraform apply
+```
+
+Infrastructure created:
+
+- VPC
+- Public subnets
+- Route tables
+- ECS cluster
+- ECS service
+- Task definition
+- Application Load Balancer
+- Target groups
+- IAM roles
+- ECR repository
+- CloudWatch log groups
+
+---
+
+## 4️⃣ Build Docker Image
+
+```bash
+docker build -t clouddeploy .
+```
+
+---
+
+## 5️⃣ Authenticate Docker With ECR
+
+```bash
+aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin <ECR_URL>
+```
+
+---
+
+## 6️⃣ Tag Docker Image
+
+```bash
+docker tag clouddeploy:latest <ECR_URL>/clouddeploy:latest
+```
+
+---
+
+## 7️⃣ Push Docker Image
+
+```bash
+docker push <ECR_URL>/clouddeploy:latest
+```
+
+---
+
+## 8️⃣ Force ECS Deployment
+
+```bash
+aws ecs update-service \
+  --cluster clouddeploy-cluster \
+  --service clouddeploy-service \
+  --force-new-deployment \
+  --region ca-central-1
+```
+
+---
+
+# 🧪 API Testing
+
+## Health Check
+
+```bash
+curl http://<ALB_URL>/health
+```
+
+Expected response:
+
+```json
+{"status":"healthy"}
+```
+
+---
+
+## List Tasks
+
+```bash
+curl http://<ALB_URL>/api/tasks
+```
+
+---
+
+## Create Task
+
+```bash
+curl -X POST http://<ALB_URL>/api/tasks \
+-H "Content-Type: application/json" \
+-d '{"title":"Learn AWS ECS","description":"Deployment testing"}'
+```
+
+---
+
+## Update Task
+
+```bash
+curl -X PUT http://<ALB_URL>/api/tasks/1 \
+-H "Content-Type: application/json" \
+-d '{"completed":true}'
+```
+
+---
+
+## Delete Task
+
+```bash
+curl -X DELETE http://<ALB_URL>/api/tasks/1
+```
+
+---
+
+# 🐛 Major Problems Faced & Solutions
+
+# ❌ Problem 1 — ECS Could Not Access AWS Services
+
+## Error
+
+```text
+ResourceInitializationError:
+unable to retrieve secret from asm
+```
+
+## Root Cause
+
+- ECS tasks were deployed in private subnets
+- NAT Gateway was disabled for cost reasons
+- ECS tasks could not access:
+  - Secrets Manager
+  - ECR
+  - CloudWatch
+
+## Fix
+
+For the demo deployment:
+
+- ECS tasks moved to public subnets
+- Public IPs assigned to tasks
+- NAT Gateway avoided for cost optimization
+
+Terraform change:
+
+```hcl
+subnets = var.public_subnet_ids
+assign_public_ip = true
+```
+
+---
+
+# ❌ Problem 2 — PostgreSQL Connection Failure
+
+## Error
+
+```text
+psycopg2.OperationalError:
+connection refused
+```
+
+## Root Cause
+
+- RDS PostgreSQL was disabled for cost control
+- Application still attempted PostgreSQL connection
+
+## Fix
+
+Implemented SQLite fallback:
+
+```python
+if db_host in ["localhost", "127.0.0.1"]:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/clouddeploy.db"
+```
+
+---
+
+# ❌ Problem 3 — PUT and DELETE Returned 404
+
+## Symptoms
+
+- GET worked
+- POST worked
+- PUT returned 404
+- DELETE returned 404
+
+## Root Cause
+
+ECS was running multiple tasks.
+
+Each task had:
+- its own local SQLite database file
+
+The Application Load Balancer routed requests between different containers.
+
+Example:
+- POST request hit container A
+- PUT request hit container B
+- container B did not contain the task
+
+This became a distributed state issue.
+
+## Fix
+
+Reduced ECS desired count to 1:
+
+```bash
+aws ecs update-service \
+  --cluster clouddeploy-cluster \
+  --service clouddeploy-service \
+  --desired-count 1 \
+  --region ca-central-1
+```
+
+This confirmed full CRUD functionality.
+
+---
+
+# 📚 What I Learned
+
+This project taught me:
+
+- Infrastructure as Code with Terraform
+- Docker containerization workflows
+- ECS Fargate deployment lifecycle
+- AWS networking fundamentals
+- ALB routing behavior
+- CloudWatch debugging
+- Docker image lifecycle
+- Distributed systems behavior
+- Stateless container architecture
+- Cloud cost optimization tradeoffs
+- Importance of shared persistence layers in multi-container environments
+
+---
+
+# 💡 Production Improvements
+
+The current deployment is intentionally cost-conscious for demo purposes.
+
+A production-ready architecture would include:
+
+- RDS PostgreSQL
+- ECS tasks in private subnets
+- NAT Gateway or VPC endpoints
+- HTTPS with ACM certificates
+- GitHub Actions CI/CD
+- Remote Terraform backend (S3 + DynamoDB)
+- ECS autoscaling
+- Structured logging
+- Shared production database
+- Multi-task scaling
+
+---
+
+# 📂 Project Structure
+
+```text
 clouddeploy/
-├── app/                          # Flask application
-│   ├── main.py                   # Routes, model, app setup
-│   ├── requirements.txt          # Production deps
-│   └── requirements-dev.txt      # Test deps
-├── tests/                        # pytest unit tests
-├── Dockerfile                    # Multi-stage build
-├── docker-compose.yml            # Local stack
-├── monitoring/
-│   ├── prometheus/
-│   │   ├── prometheus.yml        # Scrape config
-│   │   └── alerts.yml            # Alert rules
-│   └── grafana/
-│       └── provisioning/         # Auto-loaded datasources & dashboards
+├── app/
+├── tests/
 ├── terraform/
 │   ├── modules/
-│   │   ├── networking/           # VPC, subnets, NAT, route tables
-│   │   ├── iam/                  # ECS task roles
-│   │   ├── secrets/              # Secrets Manager
-│   │   ├── ecs/                  # ECR, ALB, cluster, service, alarms
-│   │   └── rds/                  # PostgreSQL
 │   └── environments/
-│       └── dev/                  # Dev environment composition
-├── .github/workflows/ci.yml      # GitHub Actions pipeline
-└── docs/
-    ├── architecture.png          # Architecture diagram
-    └── PHASE2_AWS.md             # Steps to deploy to AWS
+├── monitoring/
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## What's Next (Phase 2)
+# 📸 Recommended Screenshots
 
-The Terraform code is written for real AWS. Phase 2 deploys selected components to a free-tier AWS account for screenshots and an end-to-end demo, with strict tear-down to avoid cost. See [docs/PHASE2_AWS.md](docs/PHASE2_AWS.md).
+Recommended screenshots for GitHub:
+
+- Terraform apply success
+- ECS running service
+- ECR repository
+- CloudWatch logs
+- ALB health response
+- CRUD API testing
+- Architecture diagram
 
 ---
 
-## License
+# 📈 Project Status
 
-MIT
+## ✅ Completed
+
+- Flask REST API
+- Docker containerization
+- Terraform infrastructure
+- ECS Fargate deployment
+- Amazon ECR integration
+- ALB routing
+- CRUD API functionality
+- CloudWatch debugging
+- Cost-conscious deployment architecture
+
+---
+
+## 🔄 Planned Improvements
+
+- GitHub Actions CI/CD
+- HTTPS with ACM
+- RDS PostgreSQL deployment
+- ECS autoscaling
+- Remote Terraform backend
+- Kubernetes deployment version
+
+---
+
+# 👨‍💻 Author
+
+**Sujit Subedi**
+
+- 💼 LinkedIn: https://www.linkedin.com/in/subedi-sujit
+- 🐙 GitHub: https://github.com/Subedi-Sujit
+
+---
+
+# 📜 Final Assessment
+
+This project is not a fully enterprise-grade production platform yet, but it successfully demonstrates:
+
+- Cloud deployment workflows
+- AWS troubleshooting
+- Terraform Infrastructure as Code
+- Docker containerization
+- ECS deployment lifecycle
+- Networking and load balancing concepts
+- Distributed systems awareness
+- Practical cloud engineering problem-solving
+
+The most important lesson from this project was understanding how local container state behaves in distributed environments and why production workloads require shared persistence layers such as RDS PostgreSQL instead of local container storage.
