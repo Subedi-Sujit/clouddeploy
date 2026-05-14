@@ -63,22 +63,7 @@ The main goal of the project was to understand the full lifecycle of deploying a
 
 ## Final Working Demo Architecture
 
-```text
-User / Browser / curl
-        |
-        v
-Application Load Balancer
-        |
-        v
-Amazon ECS Fargate Service
-        |
-        v
-Docker Container running Flask + Gunicorn
-        |
-        v
-SQLite database file inside container (/tmp/clouddeploy.db)
-```
-
+![Architecture Diagram](docs/architecture-diagram.png)
 ---
 
 ## AWS Services Used
