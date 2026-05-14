@@ -63,7 +63,7 @@ The main goal of the project was to understand the full lifecycle of deploying a
 
 ## Final Working Demo Architecture
 
-![Architecture Diagram](docs/architecture-diagram.png)
+![Architecture Diagram](docs/working-demo-diagram.png)
 ---
 
 ## AWS Services Used
