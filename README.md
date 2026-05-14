@@ -12,9 +12,9 @@
 
 # 📌 Overview
 
-CloudDeploy is a cloud-native task management REST API project built to demonstrate practical cloud engineering, DevOps, Infrastructure as Code (IaC), containerization, AWS deployment workflows, and real-world troubleshooting.
+CloudDeploy is a cloud-native task management REST API project built to demonstrate practical cloud engineering, Infrastructure as Code (IaC), containerization, AWS deployment workflows, and real-world troubleshooting.
 
-The project started as a locally developed Flask application and was gradually deployed into a production-like AWS environment using:
+The project started as a locally developed Flask application and was gradually deployed into AWS using:
 
 - Docker
 - Terraform
@@ -23,19 +23,7 @@ The project started as a locally developed Flask application and was gradually d
 - Application Load Balancer (ALB)
 - CloudWatch Logs
 
-The primary goal of the project was not to build a complex business application, but to understand the complete lifecycle of deploying and operating a containerized application in the cloud.
-
-This project demonstrates:
-
-- Containerization with Docker
-- Infrastructure provisioning with Terraform
-- AWS ECS Fargate deployment
-- Amazon ECR image workflows
-- Load balancing with ALB
-- CloudWatch debugging
-- REST API deployment
-- Distributed systems troubleshooting
-- Cost-conscious cloud architecture decisions
+The main goal of the project was to understand the full lifecycle of deploying and operating a containerized application in the cloud, including infrastructure provisioning, networking, debugging, container orchestration, and distributed application behavior.
 
 ---
 
@@ -43,8 +31,7 @@ This project demonstrates:
 
 - ✅ Flask REST API
 - ✅ CRUD task management endpoints
-- ✅ Health check endpoint
-- ✅ Readiness endpoint
+- ✅ Health and readiness endpoints
 - ✅ Docker containerization
 - ✅ ECS Fargate deployment
 - ✅ Amazon ECR integration
@@ -83,7 +70,7 @@ User / Browser / curl
 Application Load Balancer
         |
         v
-ECS Fargate Service
+Amazon ECS Fargate Service
         |
         v
 Docker Container running Flask + Gunicorn
@@ -94,7 +81,7 @@ SQLite database file inside container (/tmp/clouddeploy.db)
 
 ---
 
-## AWS Components Used
+## AWS Services Used
 
 - Amazon ECS Fargate
 - Amazon ECR
@@ -145,7 +132,7 @@ SQLite database file inside container (/tmp/clouddeploy.db)
 ## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/clouddeploy.git
+git clone https://github.com/Subedi-Sujit/clouddeploy.git
 
 cd clouddeploy
 ```
@@ -283,7 +270,7 @@ docker build -t clouddeploy .
 ## 5️⃣ Authenticate Docker With ECR
 
 ```bash
-aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin <ECR_URL>
+aws ecr get-login-password --region ca-central-1 | docker login --username AWS --password-stdin 677276102143.dkr.ecr.ca-central-1.amazonaws.com
 ```
 
 ---
@@ -291,7 +278,7 @@ aws ecr get-login-password --region ca-central-1 | docker login --username AWS -
 ## 6️⃣ Tag Docker Image
 
 ```bash
-docker tag clouddeploy:latest <ECR_URL>/clouddeploy:latest
+docker tag clouddeploy:latest 677276102143.dkr.ecr.ca-central-1.amazonaws.com/clouddeploy:latest
 ```
 
 ---
@@ -299,7 +286,7 @@ docker tag clouddeploy:latest <ECR_URL>/clouddeploy:latest
 ## 7️⃣ Push Docker Image
 
 ```bash
-docker push <ECR_URL>/clouddeploy:latest
+docker push 677276102143.dkr.ecr.ca-central-1.amazonaws.com/clouddeploy:latest
 ```
 
 ---
@@ -321,7 +308,7 @@ aws ecs update-service \
 ## Health Check
 
 ```bash
-curl http://<ALB_URL>/health
+curl http://clouddeploy-alb-11043240.ca-central-1.elb.amazonaws.com/health
 ```
 
 Expected response:
@@ -335,7 +322,7 @@ Expected response:
 ## List Tasks
 
 ```bash
-curl http://<ALB_URL>/api/tasks
+curl http://clouddeploy-alb-11043240.ca-central-1.elb.amazonaws.com/api/tasks
 ```
 
 ---
@@ -343,7 +330,7 @@ curl http://<ALB_URL>/api/tasks
 ## Create Task
 
 ```bash
-curl -X POST http://<ALB_URL>/api/tasks \
+curl -X POST http://clouddeploy-alb-11043240.ca-central-1.elb.amazonaws.com/api/tasks \
 -H "Content-Type: application/json" \
 -d '{"title":"Learn AWS ECS","description":"Deployment testing"}'
 ```
@@ -353,7 +340,7 @@ curl -X POST http://<ALB_URL>/api/tasks \
 ## Update Task
 
 ```bash
-curl -X PUT http://<ALB_URL>/api/tasks/1 \
+curl -X PUT http://clouddeploy-alb-11043240.ca-central-1.elb.amazonaws.com/api/tasks/1 \
 -H "Content-Type: application/json" \
 -d '{"completed":true}'
 ```
@@ -363,7 +350,7 @@ curl -X PUT http://<ALB_URL>/api/tasks/1 \
 ## Delete Task
 
 ```bash
-curl -X DELETE http://<ALB_URL>/api/tasks/1
+curl -X DELETE http://clouddeploy-alb-11043240.ca-central-1.elb.amazonaws.com/api/tasks/1
 ```
 
 ---
@@ -536,6 +523,33 @@ Recommended screenshots for GitHub:
 - ALB health response
 - CRUD API testing
 - Architecture diagram
+
+---
+
+# 🔒 Security Notes
+
+This repository intentionally does NOT include:
+
+- AWS access keys
+- Secrets Manager values
+- `.env` files
+- Terraform state files
+- AWS credentials
+- Sensitive infrastructure secrets
+
+Before pushing changes to GitHub:
+
+```bash
+git status
+```
+
+Ensure the following are NOT committed:
+
+- `.tfstate`
+- `.terraform/`
+- credentials
+- secrets
+- environment files
 
 ---
 
