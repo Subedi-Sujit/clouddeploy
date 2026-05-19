@@ -499,8 +499,6 @@ clouddeploy/
 
 # 📸 Screenshots
 
-# 📸 Screenshots
-
 ## Terraform Apply Success
 
 ![Terraform Apply](docs/screenshots/terraform-apply-success.png)
