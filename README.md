@@ -541,32 +541,6 @@ clouddeploy/
 
 ---
 
-# 🔒 Security Notes
-
-This repository intentionally does NOT include:
-
-- AWS access keys
-- Secrets Manager values
-- `.env` files
-- Terraform state files
-- AWS credentials
-- Sensitive infrastructure secrets
-
-Before pushing changes to GitHub:
-
-```bash
-git status
-```
-
-Ensure the following are NOT committed:
-
-- `.tfstate`
-- `.terraform/`
-- credentials
-- secrets
-- environment files
-
----
 
 # 📈 Project Status
 
