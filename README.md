@@ -442,25 +442,6 @@ aws ecs update-service \
 This confirmed full CRUD functionality.
 
 ---
-
-# 📚 What I Learned
-
-This project taught me:
-
-- Infrastructure as Code with Terraform
-- Docker containerization workflows
-- ECS Fargate deployment lifecycle
-- AWS networking fundamentals
-- ALB routing behavior
-- CloudWatch debugging
-- Docker image lifecycle
-- Distributed systems behavior
-- Stateless container architecture
-- Cloud cost optimization tradeoffs
-- Importance of shared persistence layers in multi-container environments
-
----
-
 # 💡 Production Improvements
 
 The current deployment is intentionally cost-conscious for demo purposes.
